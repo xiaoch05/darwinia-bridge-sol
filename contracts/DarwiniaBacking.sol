@@ -53,6 +53,8 @@ contract DarwiniaBacking is Initializable, Ownable {
         string memory name = IERC20Option(token).name();
         string memory symbol = IERC20Option(token).symbol();
         uint8 decimals = IERC20Option(token).decimals();
+        (bool success, ) = BACKING_PRECOMPILE.call(abi.encode(token, name, symbol, decimals));
+        require(success, "register: call backing precompile failed");
         emit NewTokenRegistered(
             token,
             name,

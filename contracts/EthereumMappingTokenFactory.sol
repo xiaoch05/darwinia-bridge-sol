@@ -125,7 +125,7 @@ contract EthereumMappingTokenFactory is Initializable, Ownable {
 
         require(history[blockNumber] == address(0), "TokenBacking:: verifyProof:  The block has been verified");
 
-        ScaleStruct.BackingEvent[] memory events = getBackinEvent(root, MMRIndex, blockHeader, peaks, siblings, eventsProofStr, blockNumber);
+        ScaleStruct.BackingEvent[] memory events = getBackingEvent(root, MMRIndex, blockHeader, peaks, siblings, eventsProofStr, blockNumber);
 
         uint256 len = events.length;
         for( uint i = 0; i < len; i++ ) {
@@ -150,7 +150,7 @@ contract EthereumMappingTokenFactory is Initializable, Ownable {
         return events;
     }
 
-    function getBackinEvent(
+    function getBackingEvent(
         bytes32 root,
         uint32 MMRIndex,
         bytes memory blockHeader,
