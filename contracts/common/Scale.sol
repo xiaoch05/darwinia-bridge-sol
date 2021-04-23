@@ -73,6 +73,50 @@ library Scale {
         return events;
     }
 
+    function decodeBackingEvent(Input.Data memory data)
+        internal
+        pure
+        returns (ScaleStruct.BackingEvent[] memory)
+    {
+        uint32 len = decodeU32(data);
+        ScaleStruct.BackingEvent[] memory events = new ScaleStruct.BackingEvent[](len);
+
+        for(uint i = 0; i < len; i++) {
+            bytes2 index = data.decodeBytesN(2).toBytes2(0);
+            uint8 eventType = data.decodeU8();
+
+            // register event
+            if (eventType == 0) {
+                events[i] = ScaleStruct.BackingEvent({
+                    index: index,
+                    eventType: eventType,
+                    source: decodeEthereumAddress(data),
+                    chainId: decodeU32(data),
+                    recipient: address(0),
+                    value: 0,
+                    name: data.decodeBytes32(),
+                    symbol: data.decodeBytes32(),
+                    decimals: data.decodeU8()
+                });
+            } else if (eventType == 1) {
+                events[i] = ScaleStruct.BackingEvent({
+                    index: index,
+                    eventType: eventType,
+                    source: decodeEthereumAddress(data),
+                    chainId: decodeU32(data),
+                    recipient: decodeEthereumAddress(data),
+                    value: decode256Balance(data),
+                    name: bytes32(0),
+                    symbol: bytes32(0),
+                    decimals: 0
+                });
+            }
+        }
+
+        return events;
+
+    }
+
     /** Header */
     // export interface Header extends Struct {
     //     readonly parentHash: Hash;
