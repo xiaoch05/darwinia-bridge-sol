@@ -12,7 +12,7 @@ import { ScaleStruct } from "./common/Scale.struct.sol";
 
 pragma experimental ABIEncoderV2;
 
-contract MappingTokenFactory is Initializable, Ownable {
+contract EthereumMappingTokenFactory is Initializable, Ownable {
     using SafeERC20 for IERC20;
     enum BackingEventType { REGISTER, LOCK }
 
@@ -44,9 +44,17 @@ contract MappingTokenFactory is Initializable, Ownable {
         admin = _admin;
     }
 
+    function setBacking(address _backing) external onlyOwner {
+        backing = _backing;
+    }
+
     function setERC20Logic(address _logic) external onlyOwner {
         logic[LOGIC_ERC20] = _logic;
         emit NewLogicSetted(LOGIC_ERC20, _logic);
+    }
+
+    function setStorageKey(bytes memory key) external onlyOwner {
+        substrateEventStorageKey = key;
     }
 
     function deploy(bytes32 salt, bytes memory code) internal returns (address payable addr) {

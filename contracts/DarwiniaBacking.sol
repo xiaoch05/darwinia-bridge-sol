@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./common/Ownable.sol";
 import "./interfaces/IERC20Option.sol";
 
-contract Backing is Initializable, Ownable {
+contract DarwiniaBacking is Initializable, Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
     address public constant BACKING_PRECOMPILE = 0x0000000000000000000000000000000000000018;
