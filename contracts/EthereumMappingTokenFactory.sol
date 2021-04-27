@@ -176,7 +176,7 @@ contract EthereumMappingTokenFactory is Initializable, Ownable {
         require(source != address(0), "token is not created by factory");
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
         IERC20Option(token).burn(address(this), amount);
-        emit MappingTokenBurned(token, recipient, amount);
+        emit MappingTokenBurned(source, recipient, amount);
     }
 }
 

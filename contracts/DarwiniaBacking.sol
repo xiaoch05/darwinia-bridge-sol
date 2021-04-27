@@ -23,13 +23,21 @@ contract DarwiniaBacking is Initializable, Ownable {
     Fee public transferFee;
 
     event NewTokenRegistered(address indexed token, string name, string symbol, uint8 decimals);
-    event BackingLock(uint256 indexed networkId, address indexed token, address receiver, uint256 amount);
+    event BackingLock(uint32 indexed chainId, address indexed token, address receiver, uint256 amount);
     event BackingUnlock(address token, address recipient, uint256 amount);
 
     function initialize(address _registerFeeToken, address _transferFeeToken) public initializer {
         ownableConstructor();
         registerFee = Fee(_registerFeeToken, 0);
         transferFee = Fee(_transferFeeToken, 0);
+    }
+
+    /**
+     * @dev Throws if called by any account other than the system account defined by 0x0 address.
+     */
+    modifier onlySystem() {
+        require(address(0) == msg.sender, "System: caller is not the system account");
+        _;
     }
 
     function setRegisterFee(address token, uint256 fee) external onlyOwner {
@@ -53,7 +61,7 @@ contract DarwiniaBacking is Initializable, Ownable {
         string memory name = IERC20Option(token).name();
         string memory symbol = IERC20Option(token).symbol();
         uint8 decimals = IERC20Option(token).decimals();
-        (bool success, ) = BACKING_PRECOMPILE.call(abi.encode(token, name, symbol, decimals));
+        (bool success, ) = BACKING_PRECOMPILE.call(abi.encode(bytes4(keccak256("register(address)")), token, name, symbol, decimals));
         require(success, "register: call backing precompile failed");
         emit NewTokenRegistered(
             token,
@@ -63,7 +71,7 @@ contract DarwiniaBacking is Initializable, Ownable {
         );
     }
 
-    function lock(uint256 networkId, address token, address recipient, uint256 amount) external {
+    function lock(uint32 chainId, address token, address recipient, uint256 amount) external {
         require(amount > 0, "balance is zero");
         require(assets[token] != 0, "asset has not been registered");
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
@@ -71,15 +79,14 @@ contract DarwiniaBacking is Initializable, Ownable {
             IERC20(transferFee.token).safeTransferFrom(msg.sender, address(this), transferFee.fee);
             IERC20Option(transferFee.token).burn(address(this), transferFee.fee);
         }
-        (bool success, ) = BACKING_PRECOMPILE.call(abi.encode(networkId, token, recipient, amount));
+        (bool success, ) = BACKING_PRECOMPILE.call(abi.encode(bytes4(keccak256("lock(uint32,address,address,uint256)")), chainId, token, recipient, amount));
         require(success, "lock: call backing precompile failed");
-        emit BackingLock(networkId, token, recipient, amount);
+        emit BackingLock(chainId, token, recipient, amount);
     }
 
     // the unlock proof has been verified by system pallet
-    function unlock(address token, address recipient, uint256 amount) external {
+    function unlock(address token, address recipient, uint256 amount) external onlySystem {
         require(amount > 0, "balance is zero");
-        require(msg.sender == address(0), "must be called by system account");
         IERC20(token).safeTransferFrom(address(this), recipient, amount);
         emit BackingUnlock(token, recipient, amount);
     }
