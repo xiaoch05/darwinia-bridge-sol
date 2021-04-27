@@ -25,8 +25,8 @@ library ScaleStruct {
         bytes2 index;
         uint8 eventType;
         address source;
-        uint32 chainId;
         // transfer used
+        uint32 chainId;
         address recipient;
         uint256 value;
         // register used

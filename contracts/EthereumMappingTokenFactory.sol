@@ -131,10 +131,10 @@ contract EthereumMappingTokenFactory is Initializable, Ownable {
         for( uint i = 0; i < len; i++ ) {
           ScaleStruct.BackingEvent memory item = events[i];
           // we don't use block.chainid, because we cannot control it
-          if (item.chainId != chainId) {
-              continue;
-          }
           if (item.eventType == uint8(BackingEventType.LOCK)) {
+              if (item.chainId != chainId) {
+                  continue;
+              }
               address token = mappingToken(item.source);
               require(token != address(0), "token has not been registered");
               crossReceive(token, item.recipient, item.value);
