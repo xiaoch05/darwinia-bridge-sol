@@ -29,8 +29,8 @@ contract EthereumMappingTokenFactory is Initializable, Ownable {
 
     string constant LOGIC_ERC20 = "erc20";
 
-    event MappingTokenBurned(address token, address recipient, uint256 amount);
-    event MappingTokenCreated(address source, address token);
+    event MappingTokenBurned(address indexed token, address recipient, uint256 amount);
+    event MappingTokenCreated(address indexed source, address token);
     event NewLogicSetted(string name, address addr);
     event VerifyProof(uint32 blocknumber);
 
